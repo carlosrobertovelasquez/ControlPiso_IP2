@@ -150,11 +150,11 @@
                   </div>
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body">
+                <div id="procesos" class="box-body">
               
                   
              
-                     <table id="example1"  name="operacion" class="table">
+                     <table id="procesos"  name="procesos" class="table">
                     <thead>
                         <tr>
                           <th>OPERACION</th>
@@ -164,6 +164,9 @@
                           <th>Selecionar</th>
                         </tr>
                     </thead>
+
+                   
+
                     <tbody>
                       <input type="hidden" name="_token" value="{{ csrf_token() }}">
                            <?php
@@ -194,9 +197,11 @@
                       </tbody>
                    
                   </table>
+             
+
                       <!-- /.form-group -->
-                    
                     </div>
+                    
 
                     <!-- /.col -->   @include('ControPiso.Transacciones.agregar')
      
@@ -278,6 +283,8 @@
 
 
 <script src="http://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.js"></script>
+<script src="../js/moment.js"></script>
+<script src="../js/formatonumeros.js"></script>
 
  <script >
 
@@ -289,7 +296,7 @@
 $(document).ready(function()
 {
 
-
+ 
 $('#showModal').on('hidden.bs.modal',function(e){
    $(this).removeData();
 });
@@ -316,6 +323,8 @@ $('#showModal').on('hidden.bs.modal',function(e){
 
 
 });
+
+
 
 //Consulta de Centro de Costo
 $('#id_centrocosto').on('change',function () 
@@ -511,9 +520,10 @@ $('#cantidadaproducir').keyup(function(){
 
 // Boton de Planificacion
 $('#planificar').click(function(){
-   
+  
 eliminarFilas();
 ValdiarCampos();
+procesos2();
 
 
 
@@ -602,11 +612,11 @@ ValdiarCampos();
            d+='<tr>'+
           '<td bgcolor="#FF0000" >'+$no+'</td>'+
           '<td bgcolor="#FF0000">'+content[i].centrocosto+'</td>'+
-          '<td bgcolor="#FF0000">'+content[i].fecha+'</td>'+
+          '<td bgcolor="#FF0000">'+moment(content[i].fecha).format('DD/MM/YYYY')+'</td>'+
           '<td bgcolor="#FF0000">'+content[i].thoraini+'</td>'+
           '<td bgcolor="#FF0000">'+content[i].thorafin+'</td>'+
           '<td bgcolor="#FF0000">'+content[i].horas+'</td>'+
-          '<td bgcolor="#FF0000">'+content[i].cantidad+'</td>'+
+          '<td bgcolor="#FF0000" Align="right" >'+formatNumber.new(content[i].cantidad)+'</td>'+
           '<td bgcolor="#FF0000">'+content[i].turno+'</td>'+
           '<td bgcolor="#FF0000">'+content[i].operacion+'</td>'+
           '</tr>';
@@ -616,11 +626,11 @@ ValdiarCampos();
           d+='<tr>'+
           '<td bgcolor="#00FF00" >'+$no+'</td>'+
           '<td bgcolor="#00FF00">'+content[i].centrocosto+'</td>'+
-          '<td bgcolor="#00FF00">'+content[i].fecha+'</td>'+
+          '<td bgcolor="#00FF00">'+moment(content[i].fecha).format('DD/MM/YYYY')+'</td>'+
           '<td bgcolor="#00FF00">'+content[i].thoraini+'</td>'+
           '<td bgcolor="#00FF00">'+content[i].thorafin+'</td>'+
           '<td bgcolor="#00FF00">'+content[i].horas+'</td>'+
-          '<td bgcolor="#00FF00">'+content[i].cantidad+'</td>'+
+          '<td bgcolor="#00FF00" Align="right"  >'+formatNumber.new(content[i].cantidad)+'</td>'+
           '<td bgcolor="#00FF00">'+content[i].turno+'</td>'+
           '<td bgcolor="#00FF00">'+content[i].operacion+'</td>'+
           '</tr>';
@@ -630,11 +640,11 @@ ValdiarCampos();
             d+='<tr>'+
           '<td bgcolor="#FFFF00">'+$no+'</td>'+
           '<td bgcolor="#FFFF00">'+content[i].centrocosto+'</td>'+
-          '<td bgcolor="#FFFF00">'+content[i].fecha+'</td>'+
+          '<td bgcolor="#FFFF00">'+moment(content[i].fecha).format('DD/MM/YYYY')+'</td>'+
           '<td bgcolor="#FFFF00">'+content[i].thoraini+'</td>'+
           '<td bgcolor="#FFFF00">'+content[i].thorafin+'</td>'+
           '<td bgcolor="#FFFF00">'+content[i].horas+'</td>'+
-          '<td bgcolor="#FFFF00">'+content[i].cantidad+'</td>'+
+          '<td bgcolor="#FFFF00" Align="right" >'+formatNumber.new(content[i].cantidad)+'</td>'+
           '<td bgcolor="#FFFF00">'+content[i].turno+'</td>'+
           '<td bgcolor="#FFFF00">'+content[i].operacion+'</td>'+
           '</tr>';
@@ -657,6 +667,22 @@ ValdiarCampos();
 
 
 });
+
+function procesos2()
+{
+var id= document.getElementById("articulo").value;
+var urlraiz=$("#url_raiz_proyecto").val();
+var miurl =urlraiz+"/planificador/procesos";
+
+$.ajax({
+  type:'get',
+  url:miurl,
+  data:{id:id},
+  success:function(resul){
+    $("#procesos").val(resul);
+  }
+ });
+}
 
 
 function eliminarFilas(){

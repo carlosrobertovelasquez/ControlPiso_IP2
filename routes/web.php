@@ -88,7 +88,7 @@ Route::get('viajero/{id}',['uses'=>'OrdenProduccionController@viajero', 'as'=>'v
  Route::get('planificador/estadop/{id}', ['uses'=>'PlanificarController@estadoP', 'as'=>'planificar.estadoP']) ;
  Route::get('planificador/estadoa/{id}', ['uses'=>'PlanificarController@estadoA', 'as'=>'planificar.estadoA']) ;
  Route::get('planificador/estadob/{id}', ['uses'=>'PlanificarController@estadoB', 'as'=>'planificar.estadoB']) ;
- 
+ Route::get('planificador/procesos', ['uses'=>'PlanificarController@procesos', 'as'=>'planificar.procesos']) ;
 
 
 

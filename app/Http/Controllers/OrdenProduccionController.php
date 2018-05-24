@@ -150,10 +150,16 @@ class OrdenProduccionController extends Controller
               $ordenproduccion=CP_TCargaOrdenProduccion::where('ORDEN_PRODUCCION', $id)->first();;
               $articulordproduccion=$ordenproduccion->ARTICULO;
               $pedido=PEDIDO::where('ESTADO','=','A')->where('PEDIDO','like','PCEX%') ->orderby('PEDIDO','asc')->get();
-              $centrocosto=ESTRUC_PROCESO::selectRaw('SECUENCIA,DESCRIPCION,OPERACION')
-                ->where('ARTICULO','=',$articulordproduccion)
+              
+              $centrocosto=DB::Connection()->select("select SECUENCIA,DESCRIPCION,OPERACION from IBERPLAS.ESTRUC_PROCESO 
+              where ARTICULO='$articulordproduccion' AND version in (
+              select version from IBERPLAS.ESTRUC_MANUFACTURA where ARTICULO='$articulordproduccion' AND estado='A') order by SECUENCIA");
+              
+              //$centrocosto=ESTRUC_PROCESO::selectRaw('SECUENCIA,DESCRIPCION,OPERACION')
+               // ->where('ARTICULO','=',$articulordproduccion)
                 //->where('REPORTA_PROD','=','N')
-                ->Groupby('SECUENCIA','DESCRIPCION','OPERACION')->get();
+                //->Groupby('SECUENCIA','DESCRIPCION','OPERACION')->get();
+
               $ft_ficha=FT_FICHA::where('ARTICULO','=',$articulordproduccion)->get();
               return view('ControPiso.Transacciones.planificacion')
               ->with('ordenproduccion',$ordenproduccion)
@@ -318,14 +324,19 @@ class OrdenProduccionController extends Controller
 
        //revisar si hay disponibilaid este fecha
        
-       $disponi=DB::Connection()->select("select * from IBERPLAS.CP_CALENDARIO_PLANIFICADOR_DETALLE
-                                          where 
-                                           ID  in(
-                                          select calendario_id from IBERPLAS.CP_DETALLEPLANIFICACION
-                                          where centrocosto='$equipo' and fecha>='$nueva2' and DATEPART(HOUR,hora)>='$hora')");
+      // $disponi=DB::Connection()->select("select * from IBERPLAS.CP_CALENDARIO_PLANIFICADOR_DETALLE
+                                          //where 
+                                           //ID  in(
+                                          //select calendario_id from IBERPLAS.CP_DETALLEPLANIFICACION
+                                          //where centrocosto='$equipo' and fecha='$nueva2' and DATEPART(HOUR,hora)='$hora')");
 
-     
+          $disponi=DB::Connection()->select("
+                                          select calendario_id from IBERPLAS.CP_DETALLEPLANIFICACION
+                                          where centrocosto='$equipo' and fecha='$nueva2' and DATEPART(HOUR,hora)='$hora'");
+
+         //dd($disponi);                                 
        
+
 
         if(count($disponi)>0){
             $inicio=CP_DETALLEPLANIFICACION::where('centrocosto','=',$equipo)->max('calendario_id');    
@@ -333,8 +344,10 @@ class OrdenProduccionController extends Controller
 
           if (is_null($normal)){
                
-               $arr=array($request->lunes,$request->martes,$request->miercoles,$request->jueves,$request->viernes,$request->sabado,$request->domingo,);
-               $turnosasigados=$this->calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora);
+            $arr=array($request->lunes_ta,$request->martes_ta,$request->miercoles_ta,$request->jueves_ta,$request->viernes_ta,$request->sabado_ta,$request->domingo_ta,
+            $request->lunes_tb,$request->martes_tb,$request->miercoles_tb,$request->jueves_tb,$request->viernes_tb,$request->sabado_tb,$request->domingo_tb,
+            $request->lunes_tc,$request->martes_tc,$request->miercoles_tc,$request->jueves_tc,$request->viernes_tc,$request->sabado_tc,$request->domingo_tc,);
+            $turnosasigados=$this->calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora);
 
           }else{
 
@@ -624,11 +637,11 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
 
         
               $date = carbon::now();
-             $date = $date->format('Y-m-d H:i:s');
+             $date = $date->format('d-m-Y H:i:s');
 
              
               $fechaplanificada=$request->id_fecha;
-              $fechaplanificada=date("Y-m-d", strtotime($fechaplanificada)) ;
+              $fechaplanificada=date("d-m-Y", strtotime($fechaplanificada)) ;
 
                $maximo=CP_PLANIFICACION::max('id');
 
@@ -644,9 +657,9 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
                $fechaf=$value->fhorafin;
                $fecha=$value->fecha;
 
-               $fechai=date("Y-m-d H:i:s",strtotime($fechai));
-               $fechaf=date("Y-m-d H:i:s",strtotime($fechaf));
-               $fecha01=date("Y-m-d",strtotime($fecha));
+               $fechai=date("d-m-Y H:i:s",strtotime($fechai));
+               $fechaf=date("d-m-Y H:i:s",strtotime($fechaf));
+               $fecha01=date("d-m-Y",strtotime($fecha));
                
                $planificacion=new CP_ENCABEZADOPLANIFICACION  ;  
                 $planificacion->ordenproduccion=$request->norden;
@@ -696,7 +709,7 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
              
 
             // Grabamos el detalle de planificacion
-                  $nueva=date('Y-m-d', strtotime($request->id_fecha));
+                  $nueva=date('d-m-Y', strtotime($request->id_fecha));
 
 
                  $orden_cantidad=CP_TCargaOrdenProduccion::where('ORDEN_PRODUCCION','=',$request->norden)->get();
@@ -730,8 +743,8 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
                  $detall->hora=$value->hora;
                  $detall->orden=$value->orden;
                  $detall->turno=$value->turno;
-                 $detall->fecha=$value->fecha;
-                 $detall->fechaCalendario=$value->fechaCalendario;
+                 $detall->fecha= date("d-m-Y H:i:s",strtotime( $value->fecha));;
+                 $detall->fechaCalendario= date("d-m-Y H:i:s",strtotime( $value->fechaCalendario));
                  $detall->operacion=$value->operacion;
                  $detall->centrocosto=$value->centrocosto;
                  $detall->secuencia=$value->secuencia;
@@ -766,13 +779,13 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
              
 
              foreach ($fecha1 as $fecha1) {
-               $fechai=date("Y-m-d H:i:s",strtotime($fecha1->fechahora));   
-               $fechaci=date("Y-m-d H:i:s",strtotime($fecha1->fechaCalendario));
+               $fechai=date("d-m-Y H:i:s",strtotime($fecha1->fechahora));   
+               $fechaci=date("d-m-Y H:i:s",strtotime($fecha1->fechaCalendario));
              }
 
              foreach ($fecha2 as $fecha2) {
-              $fechaf=date("Y-m-d H:i:s",strtotime($fecha2->fechahora));
-              $fechacf=date("Y-m-d H:i:s",strtotime($fecha2->fechaCalendario)); 
+              $fechaf=date("d-m-Y H:i:s",strtotime($fecha2->fechahora));
+              $fechacf=date("d-m-Y H:i:s",strtotime($fecha2->fechaCalendario)); 
              }
             
            // dd($fechai);
@@ -823,7 +836,7 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
 
 
           foreach ($gannt as $value) {
-           $fecha=date("Y-m-d H:i:s",strtotime($value->fechamin));
+           $fecha=date("d-m-Y H:i:s",strtotime($value->fechamin));
             $task=new cp_tasks;
             $task->text=$value->text;
             $task->duration=$value->horas;
@@ -882,8 +895,8 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
                         PL.ARTICULO=ART.ARTICULO AND
                         pl.id='$id'" );
                       foreach ($gannt2 as $value) {
-                       $fechai=date("Y-m-d H:i:s",strtotime($value->fechaCalendariomin));
-                        $fechaf=date("Y-m-d H:i:s",strtotime($value->fechaCalendariomax));
+                       $fechai=date("d-m-Y H:i:s",strtotime($value->fechaCalendariomin));
+                        $fechaf=date("d-m-Y H:i:s",strtotime($value->fechaCalendariomax));
                         $task=new CP_events;
                         $task->start_date=$fechai;
                         $task->end_date=$fechaf;

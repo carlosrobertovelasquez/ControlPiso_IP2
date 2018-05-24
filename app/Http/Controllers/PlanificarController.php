@@ -131,5 +131,17 @@ $fechaSistema = Carbon::now()->format('m-d-Y H:i:s');
        
        return redirect()->route('planificador.index');
   }
-  
+
+  public function procesos(){
+    $articulordproduccion=$_GET['id'];
+    $user=\Auth::user()->name;
+    $centrocosto=DB::Connection()->select("select SECUENCIA,DESCRIPCION,OPERACION from IBERPLAS.ESTRUC_PROCESO 
+    where 
+    ARTICULO='$articulordproduccion' 
+    AND version in (select version from IBERPLAS.ESTRUC_MANUFACTURA where ARTICULO='$articulordproduccion' AND estado='A') 
+    and SECUENCIA NOT IN (SELECT SECUENCIA FROM IBERPLAS.CP_TEMP_PLANIFICACION_ENCA WHERE USUARIO='$user')
+    order by SECUENCIA");
+    return response()->json($centrocosto);
+  }
+
 }

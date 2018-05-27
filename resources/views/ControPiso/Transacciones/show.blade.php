@@ -110,10 +110,10 @@
 						</div>
                           </fieldset>
 						  <fieldset data-role="controlgroup" data-type="horizontal" id="turnoad">	
-						<div id="turnoad" style="display:none;" >
+						<div id="turnoad" >
 							<h4>Turno Admi (08:00 pm- 05:00 am)</h4>
                             <label for="lunes">L</label>
-                            <input type="checkbox" name="lunes_tad" id="lunes_tad" value=1  class="turnoad"  checked >
+                            <input type="checkbox" name="lunes_tad" id="lunes_tad" value='1'  class="turnoad"  checked >
                             <label for="martes">M</label>
                             <input type="checkbox" name="martes_tad" id="martes_tad" value="2" class="turnoad"  checked  >
                             <label for="miercoles">K</label>

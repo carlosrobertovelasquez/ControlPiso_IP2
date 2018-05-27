@@ -296,7 +296,7 @@
 $(document).ready(function()
 {
 
- 
+  document.getElementById('turnoad').style.display='none';
 $('#showModal').on('hidden.bs.modal',function(e){
    $(this).removeData();
 });
@@ -734,19 +734,26 @@ function ValidarCkecked(){
 
    
     $('.admin').prop('checked',false);
+
   }else{
     $('.admin').prop('checked',true);
   }
 }
 
 function ValidarAdmin(){
+
  if($(this.admin).prop('checked')){
-   $('.turno').prop('checked',false);
+ 
+  $('.turno').prop('checked',false);
+
+  document.getElementById('turnoad').style.display='block';
+  
   document.getElementById('turnoa').style.display='none';
   document.getElementById('turnob').style.display='none';
   document.getElementById('turnoc').style.display='none';
-  document.getElementById('turnoad').style.display='block';
+  
  }else{
+  
   $('.turno').prop('checked',true);
   document.getElementById('turnoad').style.display='none';
   document.getElementById('turnoa').style.display='block';

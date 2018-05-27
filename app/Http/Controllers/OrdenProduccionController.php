@@ -351,7 +351,7 @@ class OrdenProduccionController extends Controller
 
           }else{
 
-           
+           dd('selecionamos administrativo');
            $arr=array('N');
            $turnosasigados=$this->calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora);
           }

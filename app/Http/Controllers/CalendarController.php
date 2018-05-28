@@ -132,6 +132,7 @@ class CalendarController extends Controller
    public function delete(){
         //Valor id recibidos via ajax
         $id = $_POST['id'];
+        
 
         CalendarioEventos::destroy($id);
    }

@@ -122,8 +122,8 @@ Route::get('registro/listarconsumo',['uses'=>'RegistroController@listarconsumo',
   Route::get('Turno/detalle/{id}', ['uses'=>'TurnosController@DetalleTurno','as'=>'Turno.detalle']);
  
 
- Route::resource('cargaEventos', 'CalendarController'); 
-//Route::get('cargaEventos{id?}','CalendarController@index');
+ Route::resource('Calendario', 'CalendarController@index'); 
+Route::get('cargaEventos{id?}','CalendarController@cargaEventos');
 Route::post('guardaEventos', array('as' => 'guardaEventos','uses' => 'CalendarController@create'));
 Route::post('actualizaEventos','CalendarController@update');
 Route::post('eliminaEvento','CalendarController@delete');

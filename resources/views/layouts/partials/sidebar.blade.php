@@ -49,7 +49,7 @@
                 <ul class="treeview-menu">
                     <li><a href="{{url('Produccion')}}">Ordenes de Produccion</a></li>
                     <li><a href="{{url('planificador')}}">Planificador</a></li>
-                    <li><a href="{{url('cargaEventos')}}">Calendario</a></li>
+                    <li><a href="{{url('Calendario')}}">Calendario</a></li>
                     <li><a href="{{url('registro')}}">Registro MO-MA</a></li>
                     <li><a href="#">Ficha Tecnica</a></li>
                     

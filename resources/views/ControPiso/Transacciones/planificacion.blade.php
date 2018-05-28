@@ -620,8 +620,21 @@ procesos2();
           '<td bgcolor="#FF0000">'+content[i].turno+'</td>'+
           '<td bgcolor="#FF0000">'+content[i].operacion+'</td>'+
           '</tr>';
-
            }  
+           if(content[i].turno=='4'){
+            d+='<tr>'+
+           '<td bgcolor="#E6E6FA" >'+$no+'</td>'+
+           '<td bgcolor="#E6E6FA">'+content[i].centrocosto+'</td>'+
+           '<td bgcolor="#E6E6FA">'+moment(content[i].fecha).format('DD/MM/YYYY')+'</td>'+
+           '<td bgcolor="#E6E6FA">'+content[i].thoraini+'</td>'+
+           '<td bgcolor="#E6E6FA">'+content[i].thorafin+'</td>'+
+           '<td bgcolor="#E6E6FA">'+content[i].horas+'</td>'+
+           '<td bgcolor="#E6E6FA" Align="right" >'+formatNumber.new(content[i].cantidad)+'</td>'+
+           '<td bgcolor="#E6E6FA">'+content[i].turno+'</td>'+
+           '<td bgcolor="#E6E6FA">'+content[i].operacion+'</td>'+
+           '</tr>';
+            }  
+
           if(content[i].turno=='3'){
           d+='<tr>'+
           '<td bgcolor="#00FF00" >'+$no+'</td>'+

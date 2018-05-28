@@ -296,7 +296,7 @@ class OrdenProduccionController extends Controller
                      
 
 
-        
+       
        
 
         foreach ($core as $core) {
@@ -310,12 +310,6 @@ class OrdenProduccionController extends Controller
         
           
 
-        // $equipo=CP_EQUIPOARTICULO:: where('ID','=',$id6)->get();
-
-       
-         //foreach ($equipo as $value) {
-          // $equipo=$value->EQUIPO;
-         //}
         
          $equipo=$id6;
 
@@ -347,13 +341,14 @@ class OrdenProduccionController extends Controller
             $arr=array($request->lunes_ta,$request->martes_ta,$request->miercoles_ta,$request->jueves_ta,$request->viernes_ta,$request->sabado_ta,$request->domingo_ta,
             $request->lunes_tb,$request->martes_tb,$request->miercoles_tb,$request->jueves_tb,$request->viernes_tb,$request->sabado_tb,$request->domingo_tb,
             $request->lunes_tc,$request->martes_tc,$request->miercoles_tc,$request->jueves_tc,$request->viernes_tc,$request->sabado_tc,$request->domingo_tc,);
-            $turnosasigados=$this->calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora);
+            $turnosasigados=$this->calcularTurnos($normal,$cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora);
 
           }else{
 
-           dd('selecionamos administrativo');
-           $arr=array('N');
-           $turnosasigados=$this->calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora);
+         
+            $arr=array($request->lunes_tad,$request->martes_tad,$request->miercoles_tad,$request->jueves_tad,$request->viernes_tad,$request->sabado_tad,$request->domingo_tad,);
+            
+            $turnosasigados=$this->calcularTurnos($normal,$cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$id5,$secuencia,$orden,$cantidadxhora);
           }
 
        
@@ -362,28 +357,29 @@ class OrdenProduccionController extends Controller
 
 
         } else
-        
         {
-   
+       
           $inicioturno=$valorinicial;
          
           
           if (is_null($normal)){
+           // dd('no se admin');
            // dd('admin no selecionado');
            
           $arr=array($request->lunes_ta,$request->martes_ta,$request->miercoles_ta,$request->jueves_ta,$request->viernes_ta,$request->sabado_ta,$request->domingo_ta,
-          $request->lunes_tb,$request->martes_tb,$request->miercoles_tb,$request->jueves_tb,$request->viernes_tb,$request->sabado_tb,$request->domingo_tb,
-          $request->lunes_tc,$request->martes_tc,$request->miercoles_tc,$request->jueves_tc,$request->viernes_tc,$request->sabado_tc,$request->domingo_tc,);
+                    $request->lunes_tb,$request->martes_tb,$request->miercoles_tb,$request->jueves_tb,$request->viernes_tb,$request->sabado_tb,$request->domingo_tb,
+                    $request->lunes_tc,$request->martes_tc,$request->miercoles_tc,$request->jueves_tc,$request->viernes_tc,$request->sabado_tc,$request->domingo_tc,);
 
           
-           $turnosasigados=$this->calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr, $id3,$id4,$id5,$secuencia,$orden,$cantidadxhora);
+           $turnosasigados=$this->calcularTurnos($normal,$cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr, $id3,$id4,$id5,$secuencia,$orden,$cantidadxhora);
 
           }else{
+            //dd('si es admin');
 
              //dd('admin selecionado');
              $arr=array($request->lunes_tad,$request->martes_tad,$request->miercoles_tad,$request->jueves_tad,$request->viernes_tad,$request->sabado_tad,$request->domingo_tad,);
-          
-           $turnosasigados=$this->calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$id5,$secuencia,$orden,$cantidadxhora);
+            
+              $turnosasigados=$this->calcularTurnos($normal,$cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$id5,$secuencia,$orden,$cantidadxhora);
           }
 
        
@@ -396,10 +392,10 @@ class OrdenProduccionController extends Controller
     
 
 
-    public function calcularTurnos($cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora){
+    public function calcularTurnos($normal,$cantidadproducir,$id8,$cantidadxhora2,$secuencia2,$id6,$id,$inicioturno,$arr,$id3,$id4,$secuencia,$orden,$cantidadxhora){
         
 
-       
+      
              
          CP_TEMP_PLANIFICACION::where('USUARIOCREACION','=',\Auth::user()->name )
          ->where('operacion','=',$id3)->delete();
@@ -420,45 +416,61 @@ class OrdenProduccionController extends Controller
 
          $tempo=CP_TEMP_PLANIFICACION::where('centrocosto','=',$equipo)->max('calendario_id');
          
-        
+       
          if($tempo>0){
             
-          //if(count($arr)==1){
-                //$turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
-                //->where('ID','>',$tempo)
-                //->where('TIPO','=','N')
-                //->get();
+          if (is_null($normal)){
 
-              //}else{
+            $turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
+            ->where('ID','>',$tempo)
+            ->whereIN('turnodia',$arr)
+            ->get(); 
 
-              //$lunes=implode(",",$arr);
+          }else{}
             
 
-              $turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
-              ->where('ID','>',$tempo)
-              ->whereIN('turnodia',$arr)
-              ->get();        
+            $turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
+            ->where('ID','>=',$inicioturno)
+            ->where('tipo','=','A')
+            ->whereIN('dia',$arr)
+            ->get();    
                
 
                // }
          }else{
              
-              //if(count($arr)==1){
-              // $turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
-              //  ->where('ID','>=',$inicioturno)
-              //  ->where('TIPO','=','N')
-              //  ->get();
-                
 
-             //}else{
+          if (is_null($normal)){
+           
+           //dd('valor nulo');
+           $turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
+           ->where('ID','>=',$inicioturno)
+           ->whereIN('turnodia',$arr)
+           ->get();
+            
 
-             //$lunes=implode(",",$arr);
-            //dd($arr);
-             //pormedio de turnos y Normal
-             $turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
-                ->where('ID','>=',$inicioturno)
-                ->whereIN('turnodia',$arr)
-                ->get();                
+
+           
+     
+           
+           
+           } else {
+           // dd('valor no nulo');
+           
+           $turnos2=CP_CALENDARIO_PLANIFICADOR_DETALLE::whereNull('ESTADO')
+          -> where('ID','>=',$inicioturno)
+           ->where('tipo','=','A')
+           ->whereIN('dia',$arr)
+           ->get();
+          // dd($turnos2);
+           
+     
+          
+          }
+          
+
+              
+                               
        //}
 
 
@@ -502,11 +514,19 @@ class OrdenProduccionController extends Controller
                 $cantidad2=$vcantidad+$cantidad2;
               }
 
+              if (is_null($normal)){ $turno=$turnos->turno;}
              
+              else{ 
+             $turno="4";
+            };
+
+              
+
                 $plantemp=new CP_TEMP_PLANIFICACION;
                 $plantemp->hora=$turnos->hora;
                 $plantemp->orden=$turnos->orden;
-                $plantemp->turno=$turnos->turno;
+               
+                $plantemp->turno=$turno;
                 $plantemp->fecha=date("d-m-Y",strtotime($turnos->fecha));
                 $plantemp->fechaCalendario=date("d-m-Y H:i:s",strtotime( $turnos->fechaCalendario));
               
@@ -529,6 +549,7 @@ class OrdenProduccionController extends Controller
              }
             
          }
+        
 
 
      $usuario=\Auth::user()->name;

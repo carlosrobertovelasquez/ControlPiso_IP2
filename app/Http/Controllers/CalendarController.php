@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Modelos\ControlPiso\CP_DETALLEPLANIFICACION;
 use App\Modelos\ControlPiso\CP_ENCABEZADOPLANIFICACION;
+use App\Modelos\ControlPiso\CP_PLANIFICACION;
 use App\Modelos\ControlPiso\CP_EQUIPOARTICULO;
+use App\Modelos\ControlPiso\CP_events;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Calendar;
@@ -15,73 +17,64 @@ class CalendarController extends Controller
     public function index(Request $request)
     {
       
+    
      $maquina=0;
-
+   /*
      if($request->id_centrocosto==null or $request->id_centrocosto==0 ){
 
       $maquina=0;
-      $data=CP_ENCABEZADOPLANIFICACION::all();
+      $data=CP_events::all();
 
     
      }else{
 
-     $data=CP_ENCABEZADOPLANIFICACION::where('centrocosto','=',$request->id_centrocosto)->get();
+     $data=CP_events::where('centrocosto','=',$request->id_centrocosto)->get();
      $maquina=$request->id_centrocosto;
      }
+    */ 
 
 
-      $events=[];
-     // dd($data);
-      if($data->count()){
-        foreach ($data as $key=> $value) {
-            $events[]=Calendar::event(
-                 $value->centrocosto,
-                 false,
-                 new \DateTime($value->fhoraini),
-                 new \DateTime($value->fhorafin),
-                 null,
-
-                   [
-                        'color'=>$value->COLOR,
-                        'url' => 'pass here url and any route',
-                ]
-
-                 
-                 
-            );
-
-        }
-      }
-
-
-
-      $calendar=Calendar::addEvents($events);
+    
+      
 
       
-/*
-        $data = array();
 
-         //declaramos un array principal que va contener los datos
-        $id = Fullcalendareventos::all()->pluck('id'); //listamos todos los id de los eventos
-        $titulo = Fullcalendareventos::all()->pluck('titulo'); //lo mismo para lugar y fecha
-        $fechaIni = Fullcalendareventos::all()->pluck('fechaIni');
-        $fechaFin = Fullcalendareventos::all()->pluck('fechaFin');
-        $allDay = Fullcalendareventos::all()->pluck('todoeldia');
-        $background = Fullcalendareventos::all()->pluck('color');
+
+
+ 
+  /*
+        $centrocosto=DB::Connection()->select("select events.centrocosto as EQUIPO,ru.DESCRIP_RUBRO 
+         AS DESC_EQUIPO from 
+        IBERPLAS.CP_events events,
+        IBERPLAS.RUBRO_LIQ RU
+        where 
+        events.centrocosto=RU.RUBRO
+        group by events.centrocosto,ru.DESCRIP_RUBRO");  
+        return view('ControPiso.Transacciones.calendario',['maquina'=>$maquina], compact('calendar','centrocosto'));
+  */
+  return view('ControPiso.Transacciones.calendario');
+    }
+
+     public function cargaeventos(){
+        $data = array(); //declaramos un array principal que va contener los datos
+        $id = CP_events::all()->pluck('id'); //listamos todos los id de los eventos
+        $titulo = CP_events::all()->pluck('text'); //lo mismo para lugar y fecha
+        $fechaIni = CP_events::all()->pluck('start_date');
+        $fechaFin = CP_events::all()->pluck('end_date');
+        //$allDay = CalendarioEvento::all()->lists('todoeldia');
+        //$background = CalendarioEvento::all()->lists('color');
+        //$borde = CalendarioEvento::all()->lists('borde');
         $count = count($id); //contamos los ids obtenidos para saber el numero exacto de eventos
  
-
-         $demo=Fullcalendareventos::all();
-        dd($demo);
         //hacemos un ciclo para anidar los valores obtenidos a nuestro array principal $data
         for($i=0;$i<$count;$i++){
             $data[$i] = array(
                 "title"=>$titulo[$i], //obligatoriamente "title", "start" y "url" son campos requeridos
                 "start"=>$fechaIni[$i], //por el plugin asi que asignamos a cada uno el valor correspondiente
                 "end"=>$fechaFin[$i],
-                "allDay"=>$allDay[$i],
-                "backgroundColor"=>$background[$i],
-                //"borderColor"=>$borde[$i],
+          //      "allDay"=>$allDay[$i],
+            //    "backgroundColor"=>$background[$i],
+              //  "borderColor"=>$borde[$i],
                 "id"=>$id[$i]
                 //"url"=>"cargaEventos".$id[$i]
                 //en el campo "url" concatenamos el el URL con el id del evento para luego
@@ -90,17 +83,10 @@ class CalendarController extends Controller
             );
         }
  
-        json_encode($data); //convertimos el array principal $data a un objeto Json 
-       return $data; //para luego retornarlo y estar listo para consumirlo
-       
-       */
- 
+       json_encode($data); //convertimos el array principal $data a un objeto Json 
+       return $data; //para luego retornarlo y estar listo para consumirlo 
 
-        $centrocosto=CP_EQUIPOARTICULO::all();   
-        return view('ControPiso.Transacciones.calendario',['maquina'=>$maquina], compact('calendar','centrocosto'));
-  
     }
-
     public function create(){
         //Valores recibidos via ajax
         $title = $_POST['title'];
@@ -126,14 +112,15 @@ class CalendarController extends Controller
         $end = $_POST['end'];
         $allDay = $_POST['allday'];
         $back = $_POST['background'];
+        dd($id);
 
-        $evento=CalendarioEventos::find($id);
+        $evento= CP_events::find($id);
         if($end=='NULL'){
-            $evento->fechaFin=NULL;
+            $evento->start_date=NULL;
         }else{
-            $evento->fechaFin=$end;
+            $evento->start_date=$end;
         }
-        $evento->fechaIni=$start;
+        $evento->end_date=$start;
         $evento->todoeldia=$allDay;
         $evento->color=$back;
         $evento->titulo=$title;

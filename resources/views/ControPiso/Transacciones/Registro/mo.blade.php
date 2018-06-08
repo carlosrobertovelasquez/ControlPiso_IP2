@@ -10,9 +10,12 @@
 
 @section('main-content')
 
-
+         
+        
 <section class="content">
+
   <form  id="form_registrohoras" role="search" action="#" method="GET" >
+
           <input type="hidden" name="_token" value="{{csrf_token()}}">
   	<div class="box box-default">
   	 	<div class="box-header with-border">
@@ -220,6 +223,7 @@
 
     <div class="box box-default">
       <div class="box-header with-border">
+
         <h3 class="box-title">Registro de Produccion</h3>
 
           <div class="box-tools pull-right">
@@ -240,7 +244,7 @@
           
            <div class="form-group">
                         <label>PRODUCCION : </label>
-                        <input id="produccion" name="produccion" type="number" class="form-control"  value=0.0 onchange="produccion();" >
+                        <input id="produccion" name="produccion" type="number" class="form-control"  value=0.0 " >
                       </div>
                  <div class="form-group">
                         <label>DESPERDICIO RECUPERABLE : </label>
@@ -269,11 +273,11 @@
                           <input id="total" name="total" type="number" class="form-control"  readonly="readonly" >
                          </div>
 
-                           <div class="form-group ">                                  
-                                    <input type="button" onmouseover="this.backgroundColor='blue' "  style="width: 525px; height:40px ; display:none;" name="aprobar" id="aprobar"  value="Aprobar Produccion" onclick="yy()" >
-                            
-                          
-                           
+                          <div class="form-group ">                                  
+                                    <input type="button" onmouseover="this.backgroundColor='blue' "  style="width: 525px; height:40px ; display:none;" name="aprobar" id="aprobar"  value="Guardar Produccion" onclick="yy()" >             
+                         </div>
+                         <div class="form-group ">                                  
+                                    <input type="button" onmouseover="this.backgroundColor='blue' "  style="width: 525px; height:40px ; display:none;" name="aprobarproduccion" id="aprobarproduccion"  value="Aporbar Produccion" onclick="AporbarProduccion()" >             
                          </div>
                             
              </div>
@@ -308,6 +312,7 @@
   horasplanificadas();
   metaxTurno();
   listaempleados();
+  listarproduccion();
  
  
 
@@ -354,11 +359,14 @@ $('#produccion').on('change',function ()
 
 $('#desrecuperable').on('change',function () 
 {
+   $("#total").val(0);
+  var desperdicio2= document.getElementById("desnorecuperable").value;
   var desperdicio= document.getElementById("desrecuperable").value;
-  var produccion=document.getElementById("total").value;
+  var produccion=document.getElementById("produccion").value;
 
-  var total=parseFloat(produccion)+parseFloat(desperdicio);
+  var total=parseFloat(produccion)+parseFloat(desperdicio)+parseFloat(desperdicio2);
    
+
    $("#total").val(total);
 
  
@@ -366,10 +374,12 @@ $('#desrecuperable').on('change',function ()
 
 $('#desnorecuperable').on('change',function () 
 {
-  var desperdicio= document.getElementById("desnorecuperable").value;
-  var produccion=document.getElementById("total").value;
+   $("#total").val(0);
+   var desperdicio= document.getElementById("desrecuperable").value; 
+  var desperdicio2= document.getElementById("desnorecuperable").value;
+  var produccion=document.getElementById("produccion").value;
 
-  var total=parseFloat(produccion)+parseFloat(desperdicio);
+  var total=parseFloat(produccion)+parseFloat(desperdicio)+parseFloat(desperdicio2);
    
    $("#total").val(total);
 
@@ -520,12 +530,34 @@ var id3= document.getElementById("id_operacion").value;
 var urlraiz=$("#url_raiz_proyecto").val();
 var miurl =urlraiz+"/registro/listarproduccion";
 
+
 $.ajax({
   type:'get',
   url:miurl,
   data:{id:id,id2:id2,id3:id3},
-  success:function(data){
-    alert(data);
+  success:function(resul){
+     
+    if(resul.PRODUCCION==null ){
+     
+    $('#produccion').val(0.00);
+    $('#desrecuperable').val(0.00);
+    $('#desnorecuperable').val(0.00);
+    $('#eficiencia').val(0.00);
+    $('#total').val(0.00);
+     document.getElementById("aprobar").style.display='none';
+     document.getElementById("aprobarproduccion").style.display='none';
+    }else{
+     $('#produccion').val(resul.PRODUCCION);
+    $('#desrecuperable').val(resul.DESPERDICIORECU);
+    $('#desnorecuperable').val(resul.DESPERDICIONORECU);
+    $('#eficiencia').val(resul.EFICIENCIA);
+    $('#total').val(resul.TOTAL);
+      document.getElementById("aprobar").style.display='inline';
+      document.getElementById("aprobarproduccion").style.display='inline';
+      document.getElementById("aprobar").value='Actualizar Produduccion';
+       
+    }
+    
   }
  });
 
@@ -539,7 +571,7 @@ function actualizar(){
   horasplanificadas();
    metaxTurno();
   listaempleados();
-  //listarproduccion();
+  listarproduccion();
   document.getElementById("btnadicionar").disabled=false;
     document.getElementById("comentarios").disabled=false;
     document.getElementById("id_clave").disabled=false;
@@ -658,19 +690,7 @@ function actualizar(){
 }
   }
    function yy(){
-    //var id2= document.getElementById("id_turno").value;
-    //var dataString=$('#form_registrohoras').serialize();
-    //var urlraiz=$("#url_raiz_proyecto").val();  
-   //var miurl =urlraiz+"/registro/aprobar/"+id2+"";
-     
-  
-  //$.ajax({
-    // url:miurl,
-    //data:dataString,
-  //}).done(function(data){
    
-
- // });
 
 var dataString=$('#form_registrohoras').serialize();
     var urlraiz=$("#url_raiz_proyecto").val();
@@ -689,12 +709,41 @@ var dataString=$('#form_registrohoras').serialize();
 
   });
 
+   alert('Se actualizo Correctamente');
 
+   actualizar();
 
 
 
   }
 
+function aprobarproduccion(){
+   
+
+var dataString=$('#form_registrohoras').serialize();
+    var urlraiz=$("#url_raiz_proyecto").val();
+     var miurl =urlraiz+"/registro/aprobrarproduccion/";
+    
+    
+  $.ajax({
+     url:miurl,
+    data:dataString,
+  }).done(function(data){
+    //listaempleados();
+    //document.getElementById("searchempleado").value="";
+    //document.getElementById("nombre").value="";
+    
+
+
+  });
+
+   alert('Se Aprobo Existosamente');
+
+   actualizar();
+
+
+
+  }
 
 
 

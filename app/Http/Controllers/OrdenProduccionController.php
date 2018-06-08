@@ -253,6 +253,7 @@ class OrdenProduccionController extends Controller
 
 
     public function planificar($id,$id4,$id5,$id6,$id8,Request $request){
+      dd('aqui estoy');
       
     $cantidadproducir=$request->id_cantidadaproducir;
     $id3=$request->Mid_opera;

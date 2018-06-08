@@ -18,6 +18,7 @@ use App\Modelos\Softland\OP_OPER_CONSUMO;
 use App\Modelos\ControlPiso\CP_consumo;
 use Illuminate\Support\Facades\DB;
 Use Carbon\Carbon;
+use Laracasts\Flash\Flash;
 use Illuminate\Support\Facades\Input;
 use Response;
 
@@ -128,7 +129,7 @@ public function listaremple(){
          ->where('TURNO','=',$id2)
          ->where('OPERACION','=',$id3)->first() ;
         
-        // dd($listarproduccion);
+          
     
          return response()->json($listarproduccion);
         }
@@ -401,6 +402,7 @@ foreach ($horastrabajadas as $value) {
    
   public function agregarproduccion(Request $request){
 
+    
        $date = carbon::now();
              $date = $date->format('d-m-Y H:i:s');
      
@@ -412,8 +414,23 @@ foreach ($horastrabajadas as $value) {
          $opera1=$opera->OPERACION;
      }
 
+     $existe=CP_REGISTROPRODUCCION::where('TURNO','=',$request->id_turno)->where('OPERACION','=',$request->id_operacion)->where('ORDENPRODUCCION','=',$request->norden)->first();
 
     
+     if(count($existe)==1){
+      
+       CP_REGISTROPRODUCCION::where('TURNO','=',$request->id_turno)
+      ->where('OPERACION','=',$request->id_operacion)
+      ->where('ORDENPRODUCCION','=',$request->norden)
+      ->update(['PRODUCCION'=>$request->produccion,
+        'DESPERDICIORECU'=>$request->desrecuperable,
+        'DESPERDICIONORECU'=>$request->desnorecuperable,
+        'EFICIENCIA'=>$request->eficiencia,
+        'TOTAL'=>$request->total]);
+      Flash::success("Se ha Actualizo la Orden de Produccion  ".$request->norden." de manera exitosa!");
+
+     }else{
+
      $registroproduccion=new CP_REGISTROPRODUCCION;
  
      $registroproduccion->ORDENPRODUCCION=$request->norden;
@@ -430,9 +447,24 @@ foreach ($horastrabajadas as $value) {
      $registroproduccion->USUARIOCREACION=\Auth::user()->name;
      $registroproduccion->FECHACREACION=$date;
      $registroproduccion->save();
-     $this->aprobar($request->id_turno);
+
+     Flash::success("Se ha registrado la Orden de Produccion ".$request->norden." de manera exitosa!");
+    
+     }
+
+
+
+    
+     
     }
 
+public function aprobarproduccion(Request $request){
+
+      $this->aprobar($request->id_turno);
+
+      Flash::success("Se Aporbo la Orden de Produccion  ".$request->norden." de manera exitosa!");
+
+}
 
 
   public function aprobar($id2){

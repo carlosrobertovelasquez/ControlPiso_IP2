@@ -97,7 +97,7 @@ class RegistroController extends Controller
      $registrohoras=CP_REGISTROHORAS::
      where('ORDENPRODUCCION','=',$id)
      ->where('TURNO','=',$id2)
-     ->where('OPERACION','=',$id3)->get() ;
+     ->where('OPERACION','=',$id3)->orderby ('HORAINICIO','DESC')->get() ;
     
     
 

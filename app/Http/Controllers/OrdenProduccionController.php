@@ -550,6 +550,28 @@ class OrdenProduccionController extends Controller
             
          }
         
+         //lo nuevop aqui
+
+         $horafina=DB::Connection()->select("select MAX(calendario_id) maximo, turno,fecha
+         from IBERPLAS.CP_TEMP_PLANIFICACION
+         group by turno,fecha
+         select * from IBERPLAS.CP_TEMP_PLANIFICACION
+         order by fecha,turno");
+
+         foreach($horafina as $horafina){
+           $maxid=$horafina->maximo;
+           
+           $hora=DB::Connection()->select("select   DATEADD(MINUTE,59,hora) as tiempo, DATEADD(MINUTE,59,fechaCalendario) as tiempoCalendario from IBERPLAS.CP_TEMP_PLANIFICACION where calendario_id='$maxid'");
+          
+           foreach($hora as $hora){
+             $hora1=$hora->tiempo;
+             $hora2=$hora->tiempoCalendario;
+           }
+         
+           CP_TEMP_PLANIFICACION::where('calendario_id','=',$maxid)->update(['hora'=>$hora1,'fechaCalendario'=>$hora2]);
+          //Termina actualizacion 04062018
+
+         }
 
 
      $usuario=\Auth::user()->name;
@@ -616,7 +638,17 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
 
            }
 
-         
+           //actualizacion de encabezados 04062018
+           $fechafin=DB::Connection()->select("select id,  DATEADD(MINUTE,59,thorafin) as thorafin2,
+           DATEADD(MINUTE,59,fhorafin) as fhorafin2 from IBERPLAS.CP_TEMP_PLANIFICACION_ENCA");
+
+           foreach($fechafin as $fechafin){
+             $thorafin=$fechafin->thorafin2;
+             $fhorafin=$fechafin->fhorafin2;
+             $id=$fechafin->id;
+             CP_TEMP_PLANIFICACION_ENCA::where('id','=',$id)->update(['thorafin'=>$thorafin,'fhorafin'=>$fhorafin]);
+           }
+
          $turnosasigados= CP_TEMP_PLANIFICACION_ENCA::get();        
 
 
@@ -774,8 +806,9 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
                  $detall->USUARIOCREACION=\Auth::user()->name;
                  $detall->FECHACREACION=$date;
                  $detall->save();
-
-
+                 
+                
+               
 
                 }              
 
@@ -828,12 +861,29 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
             $CP_PLANIFICACION->USUARIOCREACION=\Auth::user()->name;
             $CP_PLANIFICACION->FECHACREACION=$date;
             $CP_PLANIFICACION->save();
+            $id2=$CP_PLANIFICACION->id;
+
+            
+            $fechafin=DB::Connection()->select(" select id,DATEADD(MINUTE,59,fechamax) as fechamax2,
+           DATEADD(MINUTE,59,fechaCalendariomax) as fechaCalendariomax2 from IBERPLAS.CP_PLANIFICACION where id='$id2'");
+           foreach($fechafin as $fechafin){
+
+            CP_PLANIFICACION::where('id','=',$id2)->update(['fechamax'=>date("d-m-Y H:i:s",strtotime($fechafin->fechamax2)),
+            'fechaCalendariomax'=>date("d-m-Y H:i:s",strtotime($fechafin->fechaCalendariomax2))]);
+           
+          }
 
             
            }
+
+           //actualizamos fecha fin
+
+           
             //mandar mail de orden de produccion Planificado
            $ordenproduccion2=$request->norden;
           
+
+
           //para no enviar correo
           $cp_planificacion2=CP_PLANIFICACION::where('ordenproduccion','=',$request->norden)->get();
            $emails=CP_emails::where('email01','=','S')->select('email')->get();  
@@ -915,6 +965,7 @@ USUARIOCREACION='$usuario' group by turno,fecha,operacion,centrocosto,secuencia,
                         WHERE 
                         PL.ARTICULO=ART.ARTICULO AND
                         pl.id='$id'" );
+                        
                       foreach ($gannt2 as $value) {
                        $fechai=date("d-m-Y H:i:s",strtotime($value->fechaCalendariomin));
                         $fechaf=date("d-m-Y H:i:s",strtotime($value->fechaCalendariomax));

@@ -549,20 +549,42 @@ function actualizar(){
   
 
   function restarHoras(){
-   inicio=document.getElementById("hora1").value;
-   fin=document.getElementById("hora2").value;
+    
+   var inicio=document.getElementById("hora1").value;
+   var fin=document.getElementById("hora2").value;
    var id= document.getElementById("horasPlanificadas").value;
    var horastrabajadas=document.getElementById("total_horas").value;
    horast=parseInt(horastrabajadas.substr(0,2));
 
-   inicioMinutos=parseInt(inicio.substr(3,2));
+  
    inicioHoras=parseInt(inicio.substr(0,2));
 
-   finMinutos=parseInt(fin.substr(3,2));
+
+    if(inicio>fin){
+
+      inicioHoras=24-inicioHoras;
+           inicioMinutos=parseInt(inicio.substr(3,2));
+  finMinutos=parseInt(fin.substr(3,2));
    finHoras=parseInt(fin.substr(0,2));
 
    transcurridoMinutos=finMinutos-inicioMinutos;
-   transcurridoHoras=finHoras-inicioHoras;
+   transcurridoHoras=finHoras+inicioHoras;
+
+    }else{
+
+       inicioHoras=parseInt(inicio.substr(0,2));
+            inicioMinutos=parseInt(inicio.substr(3,2));
+  finMinutos=parseInt(fin.substr(3,2));
+   finHoras=parseInt(fin.substr(0,2));
+
+   transcurridoMinutos=finMinutos-inicioMinutos;
+   transcurridoHoras=finHoras-inicioHoras;  
+
+    }
+
+
+
+
 
    if(transcurridoMinutos<0){
     transcurridoHoras--;
@@ -577,7 +599,7 @@ function actualizar(){
     document.getElementById("comentarios").disabled=true;
     document.getElementById("id_clave").disabled=true;
     
-    alert('A superado la Cantidad de Horas Planificadas Solicitar Aumento de Horas....');
+    window.alert('A superado la Cantidad de Horas Planificadas Solicitar Aumento de Horas....');
 
    }else{
 
@@ -592,10 +614,12 @@ function actualizar(){
    if(minutos.length<2){
     minutos="0"+minutos;
    }
+    }
+
 
    document.getElementById("horatotal").value=horas+":"+minutos;
     
-   }
+  
 
    
    
